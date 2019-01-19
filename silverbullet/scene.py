@@ -2,7 +2,7 @@ import pybullet_data
 import pybullet
 
 import dataclasses
-from typing import Sequence, Optional, Union
+from typing import Sequence, Optional, Union, Dict, Any
 
 from .color import Color
 from .connection import Connection
@@ -89,7 +89,8 @@ class Scene:
                   color: Optional[Color] = None, width: Optional[float] = None,
                   replace: Optional[DebugItem] = None) \
             -> DebugLine:
-        args = {
+
+        args: Dict[str, Any] = {
             'lineFromXYZ': from_pos,
             'lineToXYZ': to_pos
         }
@@ -111,7 +112,8 @@ class Scene:
                   color: Optional[Color] = None, size: Optional[float] = None,
                   replace: Optional[DebugItem] = None) \
             -> DebugText:
-        args = {
+
+        args: Dict[str, Any] = {
             'text': text,
             'textPosition': pos,
         }
@@ -134,7 +136,8 @@ class Scene:
     def draw_sphere(self, pos: Sequence[float], radius: Optional[float] = None,
                     color: Optional[Color] = None) \
             -> DebugSphere:
-        args = {
+
+        args: Dict[str, Any] = {
             'shapeType': pybullet.GEOM_SPHERE
         }
 
