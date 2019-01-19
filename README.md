@@ -2,6 +2,7 @@
 
 [![Travis CI](https://img.shields.io/travis/MonoMotion/silverbullet.svg?style=flat-square)](https://travis-ci.org/MonoMotion/silverbullet)
 [![pypi](https://img.shields.io/pypi/v/silverbullet.svg)](https://pypi.org/project/silverbullet/)
+[![Reviewed by Hound](https://img.shields.io/badge/Reviewed_by-Hound-8E64B0.svg?style=flat-square)](https://houndci.com)
 [![license](https://img.shields.io/github/license/MonoMotion/silverbullet.svg?style=flat-square)](LICENSE)
 [![GitHub release](https://img.shields.io/github/release/MonoMotion/silverbullet.svg?style=flat-square)](https://github.com/MonoMotion/silverbullet/releases)
 
