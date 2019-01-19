@@ -4,6 +4,9 @@ version = "0.1.0"
 description = "shallow but powerful wrapper around pybullet"
 authors = ["coord.e <me@coord-e.com>"]
 license = "MIT"
+readme = 'README.md'
+repository = 'https://github.com/MonoMotion/silverbullet'
+homepage = 'https://github.com/MonoMotion/silverbullet'
 
 [tool.poetry.dependencies]
 python = "^3.7"
