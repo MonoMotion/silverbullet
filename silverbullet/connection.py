@@ -3,8 +3,9 @@ import pybullet
 import dataclasses
 from enum import Enum, unique
 
+
 @unique
-class ConnectionMethod(Enum):
+class Mode(Enum):
     DIRECT = pybullet.DIRECT
     GUI = pybullet.GUI
     SHARED_MEMORY = pybullet.SHARED_MEMORY
