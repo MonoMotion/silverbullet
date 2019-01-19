@@ -1,0 +1,39 @@
+# silverbullet
+
+[![Travis CI](https://img.shields.io/travis/MonoMotion/silverbullet.svg?style=flat-square)](https://travis-ci.org/MonoMotion/silverbullet)
+[![pypi](https://img.shields.io/pypi/v/silverbullet.svg)](https://pypi.org/project/silverbullet/)
+[![license](https://img.shields.io/github/license/MonoMotion/silverbullet.svg?style=flat-square)](LICENSE)
+[![GitHub release](https://img.shields.io/github/release/MonoMotion/silverbullet.svg?style=flat-square)](https://github.com/MonoMotion/silverbullet/releases)
+
+shallow but powerful wrapper around pybullet
+
+## Installation
+
+```shell
+pip install silverbullet
+```
+
+## Usage
+
+```python
+from silverbullet import Scene, Robot
+
+# GUI mode
+# from silverbullet import Connection, Mode
+# conn = Connection(mode=Mode.GUI)
+# scene = Scene(timestep=0.01, frame_skip=4, connection=conn)
+
+scene = Scene(timestep=0.01, frame_skip=4)
+robot = Robot.load_urdf(scene, "robot.urdf")
+robot.bring_on_the_ground()
+
+while True:
+
+  # You can control and observe the robot
+  # e.g. robot.set_joint_torque('joint1', 1)
+
+  do_something(robot)
+
+  # This will step simulation
+  scene.step()
+```
