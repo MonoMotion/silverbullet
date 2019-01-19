@@ -14,6 +14,7 @@ class Mode(Enum):
     def to_bullet(self):
         return self.value
 
+
 @dataclasses.dataclass(frozen=True)
 class ConnectionInfo:
     is_connected: bool

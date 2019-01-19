@@ -7,6 +7,7 @@ from typing import Sequence, Optional, Union
 from .color import Color
 from .connection import Connection
 
+
 @dataclasses.dataclass(frozen=True)
 class DebugBody:
     body_id: int
@@ -66,9 +67,11 @@ class Scene:
         self.configure_simulation()
 
     def configure_simulation(self):
-        self.connection.client.setAdditionalSearchPath(pybullet_data.getDataPath())
+        self.connection.client.setAdditionalSearchPath(
+            pybullet_data.getDataPath())
         self.connection.client.setGravity(0, 0, -self.gravity)
-        self.connection.client.setPhysicsEngineParameter(fixedTimeStep=self.dt, numSubSteps=self.frame_skip)
+        self.connection.client.setPhysicsEngineParameter(
+            fixedTimeStep=self.dt, numSubSteps=self.frame_skip)
 
     def load_plane(self):
         self.plane_id = self.connection.client.loadURDF("plane.urdf")
@@ -82,7 +85,10 @@ class Scene:
         self.connection.client.stepSimulation()
         self.ts += self.dt
 
-    def draw_line(self, from_pos: Sequence[float], to_pos: Sequence[float], color: Optional[Color] = None, width: Optional[float] = None, replace: Optional[DebugItem] = None) -> DebugLine:
+    def draw_line(self, from_pos: Sequence[float], to_pos: Sequence[float],
+                  color: Optional[Color] = None, width: Optional[float] = None,
+                  replace: Optional[DebugItem] = None) \
+            -> DebugLine:
         args = {
             'lineFromXYZ': from_pos,
             'lineToXYZ': to_pos
@@ -100,7 +106,11 @@ class Scene:
         item_id = self.connection.client.addUserDebugLine(**args)
         return DebugLine(item_id)
 
-    def draw_text(self, text: str, pos: Sequence[float], orientation: Optional[Sequence[float]] = None, color: Optional[Color] = None, size: Optional[float] = None, replace: Optional[DebugItem] = None) -> DebugText:
+    def draw_text(self, text: str,
+                  pos: Sequence[float], orientation: Optional[Sequence[float]] = None,
+                  color: Optional[Color] = None, size: Optional[float] = None,
+                  replace: Optional[DebugItem] = None) \
+            -> DebugText:
         args = {
             'text': text,
             'textPosition': pos,
@@ -121,7 +131,9 @@ class Scene:
         item_id = self.connection.client.addUserDebugText(**args)
         return DebugText(item_id)
 
-    def draw_sphere(self, pos: Sequence[float], radius: Optional[float] = None, color: Optional[Color] = None) -> DebugSphere:
+    def draw_sphere(self, pos: Sequence[float], radius: Optional[float] = None,
+                    color: Optional[Color] = None) \
+            -> DebugSphere:
         args = {
             'shapeType': pybullet.GEOM_SPHERE
         }
@@ -133,11 +145,14 @@ class Scene:
             args['radius'] = radius
 
         visual_id = self.connection.client.createVisualShape(**args)
-        body_id = self.connection.client.createMultiBody(baseVisualShapeIndex=visual_id, basePosition=pos)
+        body_id = self.connection.client.createMultiBody(
+            baseVisualShapeIndex=visual_id, basePosition=pos)
         return DebugSphere(body_id)
 
-    def move_debug_body(self, body: DebugBody, position: Sequence[float], orientation: Sequence[float]):
-        self.connection.client.resetBasePositionAndOrientation(body.body_id, position, orientation)
+    def move_debug_body(self, body: DebugBody,
+                        position: Sequence[float], orientation: Sequence[float]):
+        self.connection.client.resetBasePositionAndOrientation(
+            body.body_id, position, orientation)
 
     def remove_debug_object(self, o: Union[DebugItem, DebugBody]):
         o.remove_from_scene(self)

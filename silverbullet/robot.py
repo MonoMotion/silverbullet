@@ -92,15 +92,22 @@ class Robot:
         pose = Pose(np.array(pos), np.array(ori))
         return LinkState(pose, l_vel, a_vel)
 
-    def set_joint_position(self, name: str, target: float, kp: float, kd: float, force: float):
+    def set_joint_position(self, name: str, target: float,
+                           kp: float, kd: float, force: float):
         joint_id = self.joints[name]
-        self.client.setJointMotorControl2(jointIndex=joint_id, controlMode=pybullet.POSITION_CONTROL,
-                                          targetPosition=target, positionGain=kp, velocityGain=kd, force=force)
+        self.client.setJointMotorControl2(
+            jointIndex=joint_id,
+            controlMode=pybullet.POSITION_CONTROL,
+            targetPosition=target,
+            positionGain=kp,
+            velocityGain=kd,
+            force=force)
 
     def set_joint_velocity(self, name: str, target: float, force: float):
         joint_id = self.joints[name]
         self.client.setJointMotorControl2(
-            jointIndex=joint_id, controlMode=pybullet.VELOCITY_CONTROL, targetVelocity=target, force=force)
+            jointIndex=joint_id, controlMode=pybullet.VELOCITY_CONTROL,
+            targetVelocity=target, force=force)
 
     def set_joint_torque(self, name: str, force: float):
         joint_id = self.joints[name]
@@ -108,7 +115,8 @@ class Robot:
             jointIndex=joint_id, controlMode=pybullet.TORQUE_CONTROL, force=force)
 
     def bring_on_the_ground(self, padding: float = 0):
-        h = min(self.link_state(name).pose.vector[2] for name in self.links.keys())
+        h = min(self.link_state(name).pose.vector[2]
+                for name in self.links.keys())
         if h > 0:
             raise RuntimeError("Robot is already on the ground")
         self.client.resetBasePositionAndOrientation(
@@ -116,5 +124,6 @@ class Robot:
 
     @staticmethod
     def load_urdf(scene, path, flags=pybullet.URDF_USE_SELF_COLLISION):
-        body_id = scene.connection.client.loadURDF(path, [0, 0, 0], flags=flags)
+        body_id = scene.connection.client.loadURDF(
+            path, [0, 0, 0], flags=flags)
         return Robot(body_id, scene)
