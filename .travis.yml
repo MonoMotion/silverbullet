@@ -1,0 +1,18 @@
+language: python
+python:
+  - '3.7'
+before_install:
+  - pip install poetry
+install:
+  - poetry install
+script:
+  - poetry run flake8 .
+  - poetry run mypy .
+before_deploy:
+  - poetry build
+deploy:
+  provider: script
+  script: poetry publish -n -u "${PYPI_USERNAME}" -p "${PYPI_PASSWORD}"
+  skip_cleanup: true
+  on:
+    tags: true
