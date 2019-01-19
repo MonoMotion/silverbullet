@@ -55,7 +55,7 @@ class Robot:
     root_link: str = dataclasses.field(init=False)
 
     def __post_init__(self, scene):
-        self.client = ClientWithBody(scene.client, self.body_id)
+        self.client = ClientWithBody(scene.connection.client, self.body_id)
         nr_joints = self.client.getNumJoints()
         self.links = {}
         self.joints = {}
@@ -116,5 +116,5 @@ class Robot:
 
     @staticmethod
     def load_urdf(scene, path, flags=pybullet.URDF_USE_SELF_COLLISION):
-        body_id = scene.client.loadURDF(path, [0, 0, 0], flags=flags)
+        body_id = scene.connection.client.loadURDF(path, [0, 0, 0], flags=flags)
         return Robot(body_id, scene)

@@ -1,4 +1,3 @@
-from pybullet_utils.bullet_client import BulletClient
 import pybullet_data
 import pybullet
 
@@ -6,7 +5,7 @@ import dataclasses
 from typing import Sequence, Optional, Union
 
 from .color import Color
-from .connection import ConnectionInfo, Mode
+from .connection import Connection
 
 @dataclasses.dataclass(frozen=True)
 class DebugBody:
@@ -51,33 +50,28 @@ class Scene:
     timestep: float
     frame_skip: int
     gravity: float = 9.8
-    mode: Mode = Mode.DIRECT
+    connection: Optional[Connection] = None
 
     dt: float = dataclasses.field(init=False)
     ts: float = dataclasses.field(init=False)
 
-    client: BulletClient = dataclasses.field(init=False)
-
     def __post_init__(self):
         self.dt = self.timestep * self.frame_skip
 
-        self.connect(self.mode)
+        self.connection = self.connection or Connection()
         self.episode_restart()
 
-    def connect(self, mode):
-        self.client = BulletClient(connection_mode=mode.to_bullet())
-
     def clean_everything(self):
-        self.client.resetSimulation()
+        self.connection.client.resetSimulation()
         self.configure_simulation()
 
     def configure_simulation(self):
-        self.client.setAdditionalSearchPath(pybullet_data.getDataPath())
-        self.client.setGravity(0, 0, -self.gravity)
-        self.client.setPhysicsEngineParameter(fixedTimeStep=self.dt, numSubSteps=self.frame_skip)
+        self.connection.client.setAdditionalSearchPath(pybullet_data.getDataPath())
+        self.connection.client.setGravity(0, 0, -self.gravity)
+        self.connection.client.setPhysicsEngineParameter(fixedTimeStep=self.dt, numSubSteps=self.frame_skip)
 
     def load_plane(self):
-        self.plane_id = self.client.loadURDF("plane.urdf")
+        self.plane_id = self.connection.client.loadURDF("plane.urdf")
 
     def episode_restart(self):
         self.clean_everything()
@@ -85,7 +79,7 @@ class Scene:
         self.load_plane()
 
     def step(self):
-        self.client.stepSimulation()
+        self.connection.client.stepSimulation()
         self.ts += self.dt
 
     def draw_line(self, from_pos: Sequence[float], to_pos: Sequence[float], color: Optional[Color] = None, width: Optional[float] = None, replace: Optional[DebugItem] = None) -> DebugLine:
@@ -103,7 +97,7 @@ class Scene:
         if width is not None:
             args['lineWidth'] = width
 
-        item_id = self.client.addUserDebugLine(**args)
+        item_id = self.connection.client.addUserDebugLine(**args)
         return DebugLine(item_id)
 
     def draw_text(self, text: str, pos: Sequence[float], orientation: Optional[Sequence[float]] = None, color: Optional[Color] = None, size: Optional[float] = None, replace: Optional[DebugItem] = None) -> DebugText:
@@ -124,7 +118,7 @@ class Scene:
         if size is not None:
             args['textSize'] = size
 
-        item_id = self.client.addUserDebugText(**args)
+        item_id = self.connection.client.addUserDebugText(**args)
         return DebugText(item_id)
 
     def draw_sphere(self, pos: Sequence[float], radius: Optional[float] = None, color: Optional[Color] = None) -> DebugSphere:
@@ -138,31 +132,19 @@ class Scene:
         if radius is not None:
             args['radius'] = radius
 
-        visual_id = self.client.createVisualShape(**args)
-        body_id = self.client.createMultiBody(baseVisualShapeIndex=visual_id, basePosition=pos)
+        visual_id = self.connection.client.createVisualShape(**args)
+        body_id = self.connection.client.createMultiBody(baseVisualShapeIndex=visual_id, basePosition=pos)
         return DebugSphere(body_id)
 
     def move_debug_body(self, body: DebugBody, position: Sequence[float], orientation: Sequence[float]):
-        self.client.resetBasePositionAndOrientation(body.body_id, position, orientation)
+        self.connection.client.resetBasePositionAndOrientation(body.body_id, position, orientation)
 
     def remove_debug_object(self, o: Union[DebugItem, DebugBody]):
         o.remove_from_scene(self)
 
     def save_state(self) -> SavedState:
-        state_id = self.client.saveState()
+        state_id = self.connection.client.saveState()
         return SavedState(state_id)
 
     def restore_state(self, state: SavedState):
-        self.client.restoreState(state.state_id)
-
-    def connection_info(self) -> ConnectionInfo:
-        result = self.client.getConnectionInfo()
-        is_connected = bool(result['isConnected'])
-        method = Mode(result['connectionMethod'])
-        return ConnectionInfo(is_connected, method)
-
-    def is_connected(self) -> bool:
-        return self.connection_info().is_connected
-
-    def is_gui(self) -> bool:
-        return self.connection_info().method == pybullet.GUI
+        self.connection.client.restoreState(state.state_id)

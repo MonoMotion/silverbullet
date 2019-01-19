@@ -1,4 +1,5 @@
 import pybullet
+from pybullet_utils.bullet_client import BulletClient
 
 import dataclasses
 from enum import Enum, unique
