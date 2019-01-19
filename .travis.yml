@@ -4,12 +4,12 @@ python:
 before_install:
   - pip install poetry
 install:
-  - poetry install
+  - poetry install -n
 script:
   - poetry run flake8 .
   - poetry run mypy .
 before_deploy:
-  - poetry build
+  - poetry build -n
 deploy:
   provider: script
   script: poetry publish -n -u "${PYPI_USERNAME}" -p "${PYPI_PASSWORD}"
