@@ -8,6 +8,7 @@ license = "MIT"
 [tool.poetry.dependencies]
 python = "^3.7"
 pybullet = "^2.4"
+numpy = "^1.16"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.6"
