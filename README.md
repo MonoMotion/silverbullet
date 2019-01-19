@@ -1,5 +1,6 @@
 # silverbullet
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/c9b3d97530be4717bd5dc3c4409bc545)](https://app.codacy.com/app/coord-e/silverbullet?utm_source=github.com&utm_medium=referral&utm_content=MonoMotion/silverbullet&utm_campaign=Badge_Grade_Dashboard)
 [![Travis CI](https://img.shields.io/travis/MonoMotion/silverbullet.svg?style=flat-square)](https://travis-ci.org/MonoMotion/silverbullet)
 [![pypi](https://img.shields.io/pypi/v/silverbullet.svg)](https://pypi.org/project/silverbullet/)
 [![Reviewed by Hound](https://img.shields.io/badge/Reviewed_by-Hound-8E64B0.svg?style=flat-square)](https://houndci.com)
