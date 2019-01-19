@@ -55,7 +55,7 @@ class Robot:
     root_link: str = dataclasses.field(init=False)
 
     def __post_init__(self, scene):
-        self.client = ClientWithBody(scene.connection.client, self.body_id)
+        self.client = ClientWithBody(scene._conn.client, self.body_id)
         nr_joints = self.client.getNumJoints()
         self.links = {}
         self.joints = {}

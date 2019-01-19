@@ -51,30 +51,32 @@ class Scene:
     timestep: float
     frame_skip: int
     gravity: float = 9.8
-    connection: Optional[Connection] = None
+    connection: dataclasses.InitVar[Optional[Connection]] = None
 
     dt: float = dataclasses.field(init=False)
     ts: float = dataclasses.field(init=False)
 
-    def __post_init__(self):
+    _conn: Connection = dataclasses.field(init=False)
+
+    def __post_init__(self, connection):
         self.dt = self.timestep * self.frame_skip
 
-        self.connection = self.connection or Connection()
+        self._conn = connection or Connection()
         self.episode_restart()
 
     def clean_everything(self):
-        self.connection.client.resetSimulation()
+        self._conn.client.resetSimulation()
         self.configure_simulation()
 
     def configure_simulation(self):
-        self.connection.client.setAdditionalSearchPath(
+        self._conn.client.setAdditionalSearchPath(
             pybullet_data.getDataPath())
-        self.connection.client.setGravity(0, 0, -self.gravity)
-        self.connection.client.setPhysicsEngineParameter(
+        self._conn.client.setGravity(0, 0, -self.gravity)
+        self._conn.client.setPhysicsEngineParameter(
             fixedTimeStep=self.dt, numSubSteps=self.frame_skip)
 
     def load_plane(self):
-        self.plane_id = self.connection.client.loadURDF("plane.urdf")
+        self.plane_id = self._conn.client.loadURDF("plane.urdf")
 
     def episode_restart(self):
         self.clean_everything()
@@ -82,7 +84,7 @@ class Scene:
         self.load_plane()
 
     def step(self):
-        self.connection.client.stepSimulation()
+        self._conn.client.stepSimulation()
         self.ts += self.dt
 
     def draw_line(self, from_pos: Sequence[float], to_pos: Sequence[float],
@@ -104,7 +106,7 @@ class Scene:
         if width is not None:
             args['lineWidth'] = width
 
-        item_id = self.connection.client.addUserDebugLine(**args)
+        item_id = self._conn.client.addUserDebugLine(**args)
         return DebugLine(item_id)
 
     def draw_text(self, text: str,
@@ -130,7 +132,7 @@ class Scene:
         if size is not None:
             args['textSize'] = size
 
-        item_id = self.connection.client.addUserDebugText(**args)
+        item_id = self._conn.client.addUserDebugText(**args)
         return DebugText(item_id)
 
     def draw_sphere(self, pos: Sequence[float], radius: Optional[float] = None,
@@ -147,22 +149,22 @@ class Scene:
         if radius is not None:
             args['radius'] = radius
 
-        visual_id = self.connection.client.createVisualShape(**args)
-        body_id = self.connection.client.createMultiBody(
+        visual_id = self._conn.client.createVisualShape(**args)
+        body_id = self._conn.client.createMultiBody(
             baseVisualShapeIndex=visual_id, basePosition=pos)
         return DebugSphere(body_id)
 
     def move_debug_body(self, body: DebugBody,
                         position: Sequence[float], orientation: Sequence[float]):
-        self.connection.client.resetBasePositionAndOrientation(
+        self._conn.client.resetBasePositionAndOrientation(
             body.body_id, position, orientation)
 
     def remove_debug_object(self, o: Union[DebugItem, DebugBody]):
         o.remove_from_scene(self)
 
     def save_state(self) -> SavedState:
-        state_id = self.connection.client.saveState()
+        state_id = self._conn.client.saveState()
         return SavedState(state_id)
 
     def restore_state(self, state: SavedState):
-        self.connection.client.restoreState(state.state_id)
+        self._conn.client.restoreState(state.state_id)
