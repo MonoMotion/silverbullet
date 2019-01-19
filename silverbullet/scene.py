@@ -12,9 +12,8 @@ from .connection import Connection
 class DebugBody:
     body_id: int
 
-    def remove_from_scene(self, scene):
-        # TODO: annotate scene with Scene type
-        scene.client.removeBody(self.body_id)
+    def remove_from_scene(self, scene: 'Scene'):
+        scene._conn.client.removeBody(self.body_id)
 
 
 @dataclasses.dataclass(frozen=True)
@@ -26,9 +25,8 @@ class DebugSphere(DebugBody):
 class DebugItem:
     item_id: int
 
-    def remove_from_scene(self, scene):
-        # TODO: annotate scene with Scene type
-        scene.client.removeUserDebugItem(self.item_id)
+    def remove_from_scene(self, scene: 'Scene'):
+        scene._conn.client.removeUserDebugItem(self.item_id)
 
 
 @dataclasses.dataclass(frozen=True)
@@ -58,7 +56,7 @@ class Scene:
 
     _conn: Connection = dataclasses.field(init=False)
 
-    def __post_init__(self, connection):
+    def __post_init__(self, connection: Optional[Connection]):
         self.dt = self.timestep * self.frame_skip
 
         self._conn = connection or Connection()
