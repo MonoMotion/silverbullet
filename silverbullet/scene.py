@@ -6,13 +6,7 @@ import dataclasses
 from typing import Sequence, Optional, Union
 
 from .color import Color
-
-
-@dataclasses.dataclass(frozen=True)
-class ConnectionInfo:
-    is_connected: bool
-    method: int
-
+from .connection import ConnectionInfo, ConnectionMethod
 
 @dataclasses.dataclass(frozen=True)
 class DebugBody:
@@ -164,7 +158,9 @@ class Scene:
 
     def connection_info(self) -> ConnectionInfo:
         result = self.client.getConnectionInfo()
-        return ConnectionInfo(bool(result['isConnected']), result['connectionMethod'])
+        is_connected = bool(result['isConnected'])
+        method = ConnectionMethod(result['connectionMethod'])
+        return ConnectionInfo(is_connected, method)
 
     def is_connected(self) -> bool:
         return self.connection_info().is_connected
