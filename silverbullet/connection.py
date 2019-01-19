@@ -10,8 +10,11 @@ class Mode(Enum):
     GUI = pybullet.GUI
     SHARED_MEMORY = pybullet.SHARED_MEMORY
 
+    def to_bullet(self):
+        return self.value
+
 @dataclasses.dataclass(frozen=True)
 class ConnectionInfo:
     is_connected: bool
-    method: ConnectionMethod
+    method: Mode
 

@@ -1,4 +1,4 @@
-from pybullet_utils import bullet_client
+from pybullet_utils.bullet_client import BulletClient
 import pybullet_data
 import pybullet
 
@@ -6,7 +6,7 @@ import dataclasses
 from typing import Sequence, Optional, Union
 
 from .color import Color
-from .connection import ConnectionInfo, ConnectionMethod
+from .connection import ConnectionInfo, Mode
 
 @dataclasses.dataclass(frozen=True)
 class DebugBody:
@@ -51,22 +51,21 @@ class Scene:
     timestep: float
     frame_skip: int
     gravity: float = 9.8
-    client: bullet_client.BulletClient = None
+    mode: Mode = Mode.DIRECT
 
     dt: float = dataclasses.field(init=False)
     ts: float = dataclasses.field(init=False)
 
+    client: BulletClient = dataclasses.field(init=False)
+
     def __post_init__(self):
         self.dt = self.timestep * self.frame_skip
 
-        self.connect(self.client)
+        self.connect(self.mode)
         self.episode_restart()
 
-    def connect(self, client):
-        if client:
-            self.client = client
-        else:
-            self.client = bullet_client.BulletClient()
+    def connect(self, mode):
+        self.client = BulletClient(connection_mode=mode.to_bullet())
 
     def clean_everything(self):
         self.client.resetSimulation()
@@ -159,7 +158,7 @@ class Scene:
     def connection_info(self) -> ConnectionInfo:
         result = self.client.getConnectionInfo()
         is_connected = bool(result['isConnected'])
-        method = ConnectionMethod(result['connectionMethod'])
+        method = Mode(result['connectionMethod'])
         return ConnectionInfo(is_connected, method)
 
     def is_connected(self) -> bool:
