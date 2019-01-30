@@ -82,12 +82,20 @@ class Robot:
             pos, ori = self.client.getBasePositionAndOrientation()
             if compute_velocity:
                 a_vel, l_vel = self.client.getBaseVelocity()
-            else:
-                a_vel = None
-                l_vel = None
+
         else:
-            pos, ori, _, _, l_vel, a_vel = self.client.getLinkState(
+            ret = self.client.getLinkState(
                 linkIndex=link_id, computeLinkVelocity=compute_velocity)
+
+            if compute_velocity:
+                pos, ori, _, _, _, _, l_vel, a_vel = ret
+            else:
+                pos, ori, _, _, _, _ = ret
+
+        if not compute_velocity:
+            a_vel = None
+            l_vel = None
+
         pose = Pose(np.array(pos), np.array(ori))
         return LinkState(pose, l_vel, a_vel)
 
