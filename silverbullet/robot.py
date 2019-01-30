@@ -99,8 +99,8 @@ class Robot:
         pose = Pose(np.array(pos), np.array(ori))
         return LinkState(pose, l_vel, a_vel)
 
-    def set_joint_position(self, name: str, target: float,
-                           kp: float, kd: float, force: float):
+    def set_joint_position(self, name: str, target: float, *,
+                           kp: float = 0.1, kd: float = 1.0, force: float = 100000.0):
         joint_id = self.joints[name]
         self.client.setJointMotorControl2(
             jointIndex=joint_id,
@@ -110,7 +110,7 @@ class Robot:
             velocityGain=kd,
             force=force)
 
-    def set_joint_velocity(self, name: str, target: float, force: float):
+    def set_joint_velocity(self, name: str, target: float, *, force: float = 100000.0):
         joint_id = self.joints[name]
         self.client.setJointMotorControl2(
             jointIndex=joint_id, controlMode=pybullet.VELOCITY_CONTROL,
