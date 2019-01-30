@@ -81,9 +81,10 @@ class Scene:
         self.ts = 0
         self.load_plane()
 
-    def step(self):
-        self._conn.client.stepSimulation()
-        self.ts += self.dt
+    def step(self, n: int = 1):
+        for _ in range(n):
+            self._conn.client.stepSimulation()
+            self.ts += self.dt
 
     def draw_line(self, from_pos: Sequence[float], to_pos: Sequence[float],
                   color: Optional[Color] = None, width: Optional[float] = None,
