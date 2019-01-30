@@ -36,3 +36,9 @@ class Connection(object):
 
     def mode(self) -> Mode:
         return Mode(self.info().method)
+
+    def disconnect(self):
+        self.client.disconnect()
+
+    def __del__(self):
+        self.client.disconnect()
