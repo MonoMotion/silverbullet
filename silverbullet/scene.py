@@ -167,3 +167,6 @@ class Scene:
 
     def restore_state(self, state: SavedState):
         self._conn.client.restoreState(state.state_id)
+
+    def conn(self) -> Connection:
+        return self._conn
