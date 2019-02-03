@@ -176,6 +176,27 @@ class Scene:
     def conn(self) -> Connection:
         return self._conn
 
-    def camera_image(self, width: int, height: int) -> np.ndarray:
-        _, _, data, _, _ = self._conn.client.getCameraImage(width, height)
+    def camera_image(self, width: int, height: int, shadow: bool = True, light_color: Color = None, light_distance: float = None, light_direction: np.ndarray = None, view_matrix: np.ndarray = None, projection_matrix: np.ndarray = None) -> np.ndarray:
+        args: Dict[str, Any] = {
+            'width': width,
+            'height': height,
+            'shadow': int(shadow)
+        }
+
+        if light_color is not None:
+            args['lightColor'] = light_color.as_rgb()
+
+        if light_distance is not None:
+            args['lightDistance'] = light_distance
+
+        if light_direction is not None:
+            args['lightDirection'] = light_direction
+
+        if view_matrix is not None:
+            args['viewMatrix'] = view_matrix
+
+        if projection_matrix is not None:
+            args['projectionMatrix'] = projection_matrix
+
+        _, _, data, _, _ = self._conn.client.getCameraImage(**args)
         return data.reshape((height, width, 4))
