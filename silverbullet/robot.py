@@ -67,17 +67,17 @@ class DynamicsInfo:
 
 @dataclasses.dataclass
 class SetDynamicsParams:
-    mass: float = None
-    lateral_friction: float = None
-    local_inertia_diagonal: Tuple[float, float, float] = None
-    restitution: float = None
-    rolling_friction: float = None
-    spinning_friction: float = None
-    linear_damping: float = None
-    angular_damping: float = None
-    friction_anchor: bool = None
-    contact_damping: float = None
-    contact_stiffness: float = None
+    mass: Optional[float] = None
+    lateral_friction: Optional[float] = None
+    local_inertia_diagonal: Optional[Tuple[float, float, float]] = None
+    restitution: Optional[float] = None
+    rolling_friction: Optional[float] = None
+    spinning_friction: Optional[float] = None
+    linear_damping: Optional[float] = None
+    angular_damping: Optional[float] = None
+    friction_anchor: Optional[bool] = None
+    contact_damping: Optional[float] = None
+    contact_stiffness: Optional[float] = None
 
     def to_bullet_kwargs(self):
         def convert(s):
