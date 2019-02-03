@@ -5,7 +5,7 @@ import numpy as np
 from .scene import Scene
 
 import functools
-from typing import Optional, Dict
+from typing import Optional, Dict, Tuple
 import re
 
 
@@ -42,6 +42,20 @@ class ClientWithBody:
     def __getattr__(self, name: str):
         method = getattr(self.client, name)
         return functools.partial(method, bodyUniqueId=self.body_id)
+
+
+@dataclasses.dataclass
+class DynamicsInfo:
+    mass: float
+    lateral_friction: float
+    local_inertia_diagonal: Tuple[float, float, float]
+    local_inertial_position: Tuple[float, float, float]
+    local_inertial_orientation: Tuple[float, float, float, float]
+    restitution: float
+    rolling_friction: float
+    spinning_friction: float
+    contact_damping: Optional[float] = None
+    contact_stiffness: Optional[float] = None
 
 
 @dataclasses.dataclass
@@ -130,12 +144,21 @@ class Robot:
         self.client.resetBasePositionAndOrientation(
             posObj=[0, 0, -h + padding], ornObj=[0, 0, 0, 1])
 
-    def dynamics_info(self, name: str = None):
+    def dynamics_info(self, name: str = None) -> DynamicsInfo:
         if name is None:
             link_id = -1
         else:
             link_id = self.links[name]
-        return self.client.getDynamicsInfo(linkIndex=link_id)
+
+        ret = self.client.getDynamicsInfo(linkIndex=link_id)
+        info = DynamicsInfo(*ret)
+
+        if info.contact_damping == -1:
+            info.contact_damping = None
+        if info.contact_stiffness == -1:
+            info.contact_stiffness = None
+
+        return info
 
     def set_dynamics(self, name: str = None, **kwargs):
         if name is None:
