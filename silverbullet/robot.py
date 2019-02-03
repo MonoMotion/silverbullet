@@ -57,6 +57,13 @@ class DynamicsInfo:
     contact_damping: Optional[float] = None
     contact_stiffness: Optional[float] = None
 
+    def to_set_params(self):
+        info_fields = set(f.name for f in dataclasses.fields(DynamicsInfo))
+        params_fields = set(f.name for f in dataclasses.fields(SetDynamicsParams))
+        fields = info_fields.intersection(params_fields)
+        kwargs = {k: v for k, v in dataclasses.asdict(self).items() if k in fields}
+        return SetDynamicsParams(**kwargs)
+
 @dataclasses.dataclass
 class SetDynamicsParams:
     mass: float = None
