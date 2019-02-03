@@ -57,6 +57,24 @@ class DynamicsInfo:
     contact_damping: Optional[float] = None
     contact_stiffness: Optional[float] = None
 
+@dataclasses.dataclass
+class SetDynamicsParams:
+    mass: float = None
+    lateral_friction: float = None
+    local_inertia_diagonal: Tuple[float, float, float] = None
+    restitution: float = None
+    rolling_friction: float = None
+    spinning_friction: float = None
+    linear_damping: float = None
+    angular_damping: float = None
+    friction_anchor: bool = None
+    contact_damping: float = None
+    contact_stiffness: float = None
+
+    def to_kwargs(self):
+        def convert(s):
+            return re.sub('_(.)', lambda p: p[1].upper(), s)
+        return {convert(k): v for k, v in dataclasses.asdict(self).items() if v is not None}
 
 @dataclasses.dataclass
 class Robot:
@@ -166,12 +184,9 @@ class Robot:
         else:
             link_id = self.links[name]
 
-        def convert(s):
-            return re.sub('_(.)', lambda p: p[1].upper(), s)
+        params = SetDynamicsParams(**kwargs)
 
-        real_args = {convert(k): v for k, v in kwargs.items()}
-
-        self.client.changeDynamics(linkIndex=link_id, **real_args)
+        self.client.changeDynamics(linkIndex=link_id, **params.to_kwargs())
 
     @staticmethod
     def load_urdf(scene: Scene, path: str, flags=pybullet.URDF_USE_SELF_COLLISION):
