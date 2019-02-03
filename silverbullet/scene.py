@@ -1,11 +1,13 @@
 import pybullet_data
 import pybullet
+import numpy as np
 
 import dataclasses
 from typing import Sequence, Optional, Union, Dict, Any
 
 from .color import Color
 from .connection import Connection
+from . import robot
 
 
 @dataclasses.dataclass(frozen=True)
@@ -54,6 +56,8 @@ class Scene:
     dt: float = dataclasses.field(init=False)
     ts: float = dataclasses.field(init=False)
 
+    plane: 'robot.Robot' = dataclasses.field(init=False)
+
     _conn: Connection = dataclasses.field(init=False)
 
     def __post_init__(self, connection: Optional[Connection]):
@@ -74,7 +78,8 @@ class Scene:
             fixedTimeStep=self.dt, numSubSteps=self.frame_skip)
 
     def load_plane(self):
-        self.plane_id = self._conn.client.loadURDF("plane.urdf")
+        plane_id = self._conn.client.loadURDF("plane.urdf")
+        self.plane = robot.Robot(plane_id, self)
 
     def episode_restart(self):
         self.clean_everything()
@@ -170,3 +175,32 @@ class Scene:
 
     def conn(self) -> Connection:
         return self._conn
+
+    def camera_image(self, width: int, height: int, *, shadow: bool = True,
+                     light_color: Color = None, light_distance: float = None,
+                     light_direction: np.ndarray = None, view_matrix: np.ndarray = None,
+                     projection_matrix: np.ndarray = None) \
+            -> np.ndarray:
+        args: Dict[str, Any] = {
+            'width': width,
+            'height': height,
+            'shadow': int(shadow)
+        }
+
+        if light_color is not None:
+            args['lightColor'] = light_color.as_rgb()
+
+        if light_distance is not None:
+            args['lightDistance'] = light_distance
+
+        if light_direction is not None:
+            args['lightDirection'] = light_direction
+
+        if view_matrix is not None:
+            args['viewMatrix'] = view_matrix
+
+        if projection_matrix is not None:
+            args['projectionMatrix'] = projection_matrix
+
+        _, _, data, _, _ = self._conn.client.getCameraImage(**args)
+        return data.reshape((height, width, 4))

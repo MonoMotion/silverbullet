@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "silverbullet"
-version = "0.2.0"
+version = "0.3.0"
 description = "shallow but powerful wrapper around pybullet"
 authors = ["coord.e <me@coord-e.com>"]
 license = "MIT"
