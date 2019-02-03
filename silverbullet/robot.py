@@ -5,7 +5,8 @@ import numpy as np
 from .scene import Scene
 
 import functools
-from typing import Optional, Dict
+from typing import Optional, Dict, Tuple
+import re
 
 
 @dataclasses.dataclass
@@ -41,6 +42,50 @@ class ClientWithBody:
     def __getattr__(self, name: str):
         method = getattr(self.client, name)
         return functools.partial(method, bodyUniqueId=self.body_id)
+
+
+@dataclasses.dataclass
+class DynamicsInfo:
+    mass: float
+    lateral_friction: float
+    local_inertia_diagonal: Tuple[float, float, float]
+    local_inertial_position: Tuple[float, float, float]
+    local_inertial_orientation: Tuple[float, float, float, float]
+    restitution: float
+    rolling_friction: float
+    spinning_friction: float
+    contact_damping: Optional[float] = None
+    contact_stiffness: Optional[float] = None
+
+    def to_set_params(self):
+        info_fields = set(f.name for f in dataclasses.fields(DynamicsInfo))
+        params_fields = set(f.name for f in dataclasses.fields(SetDynamicsParams))
+        fields = info_fields.intersection(params_fields)
+        kwargs = {k: v for k, v in dataclasses.asdict(self).items() if k in fields}
+        return SetDynamicsParams(**kwargs)
+
+
+@dataclasses.dataclass
+class SetDynamicsParams:
+    mass: Optional[float] = None
+    lateral_friction: Optional[float] = None
+    local_inertia_diagonal: Optional[Tuple[float, float, float]] = None
+    restitution: Optional[float] = None
+    rolling_friction: Optional[float] = None
+    spinning_friction: Optional[float] = None
+    linear_damping: Optional[float] = None
+    angular_damping: Optional[float] = None
+    friction_anchor: Optional[bool] = None
+    contact_damping: Optional[float] = None
+    contact_stiffness: Optional[float] = None
+
+    def to_bullet_kwargs(self):
+        def convert(s):
+            return re.sub('_(.)', lambda p: p[1].upper(), s)
+        return {convert(k): v
+                for k, v
+                in dataclasses.asdict(self).items()
+                if v is not None}
 
 
 @dataclasses.dataclass
@@ -128,6 +173,31 @@ class Robot:
             raise RuntimeError("Robot is already on the ground")
         self.client.resetBasePositionAndOrientation(
             posObj=[0, 0, -h + padding], ornObj=[0, 0, 0, 1])
+
+    def dynamics_info(self, name: str) -> DynamicsInfo:
+        link_id = self.links[name]
+
+        ret = self.client.getDynamicsInfo(linkIndex=link_id)
+        info = DynamicsInfo(*ret)
+
+        if info.contact_damping == -1:
+            info.contact_damping = None
+        if info.contact_stiffness == -1:
+            info.contact_stiffness = None
+
+        return info
+
+    def set_dynamics(self, name: str, params: SetDynamicsParams = None, **kwargs):
+        link_id = self.links[name]
+
+        kw_params = SetDynamicsParams(**kwargs)
+        if params is not None:
+            bullet_args = params.to_bullet_kwargs()
+            bullet_args.update(kw_params.to_bullet_kwargs())
+        else:
+            bullet_args = kw_params.to_bullet_kwargs()
+
+        self.client.changeDynamics(linkIndex=link_id, **bullet_args)
 
     @staticmethod
     def load_urdf(scene: Scene, path: str, flags=pybullet.URDF_USE_SELF_COLLISION):
