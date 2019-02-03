@@ -176,7 +176,7 @@ class Scene:
     def conn(self) -> Connection:
         return self._conn
 
-    def camera_image(self, width: int, height: int, shadow: bool = True, light_color: Color = None, light_distance: float = None, light_direction: np.ndarray = None, view_matrix: np.ndarray = None, projection_matrix: np.ndarray = None) -> np.ndarray:
+    def camera_image(self, width: int, height: int, *, shadow: bool = True, light_color: Color = None, light_distance: float = None, light_direction: np.ndarray = None, view_matrix: np.ndarray = None, projection_matrix: np.ndarray = None) -> np.ndarray:
         args: Dict[str, Any] = {
             'width': width,
             'height': height,
