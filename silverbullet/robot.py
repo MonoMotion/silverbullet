@@ -6,6 +6,7 @@ from .scene import Scene
 
 import functools
 from typing import Optional, Dict
+import re
 
 
 @dataclasses.dataclass
@@ -135,6 +136,19 @@ class Robot:
         else:
             link_id = self.links[name]
         return self.client.getDynamicsInfo(linkIndex=link_id)
+
+    def set_dynamics(self, name: str = None, **kwargs):
+        if name is None:
+            link_id = -1
+        else:
+            link_id = self.links[name]
+
+        def convert(s):
+            return re.sub('_(.)', lambda p: p[1].upper(), s)
+
+        real_args = {convert(k): v for k, v in kwargs.items()}
+
+        self.client.changeDynamics(linkIndex=link_id, **real_args)
 
     @staticmethod
     def load_urdf(scene: Scene, path: str, flags=pybullet.URDF_USE_SELF_COLLISION):
