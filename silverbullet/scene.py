@@ -1,5 +1,6 @@
 import pybullet_data
 import pybullet
+import numpy as np
 
 import dataclasses
 from typing import Sequence, Optional, Union, Dict, Any
@@ -174,3 +175,7 @@ class Scene:
 
     def conn(self) -> Connection:
         return self._conn
+
+    def camera_image(self, width: int, height: int) -> np.ndarray:
+        _, _, data, _, _ = self._conn.client.getCameraImage(width, height)
+        return data.reshape((height, width, 4))
