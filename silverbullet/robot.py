@@ -64,6 +64,7 @@ class DynamicsInfo:
         kwargs = {k: v for k, v in dataclasses.asdict(self).items() if k in fields}
         return SetDynamicsParams(**kwargs)
 
+
 @dataclasses.dataclass
 class SetDynamicsParams:
     mass: float = None
@@ -79,9 +80,13 @@ class SetDynamicsParams:
     contact_stiffness: float = None
 
     def to_kwargs(self):
+        return {k: v for k, v in dataclasses.asdict(self).items() if v is not None}
+
+    def to_bullet_kwargs(self):
         def convert(s):
             return re.sub('_(.)', lambda p: p[1].upper(), s)
         return {convert(k): v for k, v in dataclasses.asdict(self).items() if v is not None}
+
 
 @dataclasses.dataclass
 class Robot:
@@ -193,7 +198,7 @@ class Robot:
 
         params = SetDynamicsParams(**kwargs)
 
-        self.client.changeDynamics(linkIndex=link_id, **params.to_kwargs())
+        self.client.changeDynamics(linkIndex=link_id, **params.to_bullet_kwargs())
 
     @staticmethod
     def load_urdf(scene: Scene, path: str, flags=pybullet.URDF_USE_SELF_COLLISION):
