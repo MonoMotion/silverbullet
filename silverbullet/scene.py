@@ -6,6 +6,7 @@ from typing import Sequence, Optional, Union, Dict, Any
 
 from .color import Color
 from .connection import Connection
+from . import robot
 
 
 @dataclasses.dataclass(frozen=True)
@@ -54,6 +55,8 @@ class Scene:
     dt: float = dataclasses.field(init=False)
     ts: float = dataclasses.field(init=False)
 
+    plane: 'robot.Robot' = dataclasses.field(init=False)
+
     _conn: Connection = dataclasses.field(init=False)
 
     def __post_init__(self, connection: Optional[Connection]):
@@ -74,7 +77,8 @@ class Scene:
             fixedTimeStep=self.dt, numSubSteps=self.frame_skip)
 
     def load_plane(self):
-        self.plane_id = self._conn.client.loadURDF("plane.urdf")
+        plane_id = self._conn.client.loadURDF("plane.urdf")
+        self.plane = robot.Robot(plane_id, self)
 
     def episode_restart(self):
         self.clean_everything()
