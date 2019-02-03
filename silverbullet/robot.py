@@ -129,6 +129,13 @@ class Robot:
         self.client.resetBasePositionAndOrientation(
             posObj=[0, 0, -h + padding], ornObj=[0, 0, 0, 1])
 
+    def dynamics_info(self, name: str = None):
+        if name is None:
+            link_id = -1
+        else:
+            link_id = self.links[name]
+        return self.client.getDynamicsInfo(linkIndex=link_id)
+
     @staticmethod
     def load_urdf(scene: Scene, path: str, flags=pybullet.URDF_USE_SELF_COLLISION):
         body_id = scene._conn.client.loadURDF(
