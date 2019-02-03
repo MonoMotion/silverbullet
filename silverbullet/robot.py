@@ -174,11 +174,8 @@ class Robot:
         self.client.resetBasePositionAndOrientation(
             posObj=[0, 0, -h + padding], ornObj=[0, 0, 0, 1])
 
-    def dynamics_info(self, name: str = None) -> DynamicsInfo:
-        if name is None:
-            link_id = -1
-        else:
-            link_id = self.links[name]
+    def dynamics_info(self, name: str) -> DynamicsInfo:
+        link_id = self.links[name]
 
         ret = self.client.getDynamicsInfo(linkIndex=link_id)
         info = DynamicsInfo(*ret)
@@ -190,11 +187,8 @@ class Robot:
 
         return info
 
-    def set_dynamics(self, name: str = None, params: SetDynamicsParams = None, **kwargs):
-        if name is None:
-            link_id = -1
-        else:
-            link_id = self.links[name]
+    def set_dynamics(self, name: str, params: SetDynamicsParams = None, **kwargs):
+        link_id = self.links[name]
 
         kw_params = SetDynamicsParams(**kwargs)
         if params is not None:
