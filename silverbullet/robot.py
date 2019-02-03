@@ -82,7 +82,10 @@ class SetDynamicsParams:
     def to_bullet_kwargs(self):
         def convert(s):
             return re.sub('_(.)', lambda p: p[1].upper(), s)
-        return {convert(k): v for k, v in dataclasses.asdict(self).items() if v is not None}
+        return {convert(k): v
+                for k, v
+                in dataclasses.asdict(self).items()
+                if v is not None}
 
 
 @dataclasses.dataclass
